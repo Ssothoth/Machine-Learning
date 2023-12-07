@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Charger le dataset depuis le fichier CSV
-dataset_path = 'dataset.csv'
+dataset_path = 'dataset_fraud.csv'
 df = pd.read_csv(dataset_path) #Charge le jeu de données depuis un fichier CSV spécifié
 
 # Remplacer les valeurs manquantes par la moyenne des colonnes respectives

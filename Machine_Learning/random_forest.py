@@ -7,7 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
 
 # Charger le dataset nettoyé
-dataset_path = 'dataset_nettoye.csv'
+dataset_path = 'dataset_fraud.csv'
 df = pd.read_csv(dataset_path)
 
 # Séparer les features (X) et la variable cible (y)

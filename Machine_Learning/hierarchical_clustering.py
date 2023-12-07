@@ -4,7 +4,7 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import accuracy_score
 
 # Charger le dataset depuis le fichier CSV
-dataset_path = 'dataset.csv'
+dataset_path = 'dataset_fraud.csv'
 df = pd.read_csv(dataset_path)
 
 # Remplacer les valeurs manquantes par la moyenne des colonnes respectives

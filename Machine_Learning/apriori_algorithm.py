@@ -3,7 +3,7 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori, association_rules
 
 # Charger le dataset depuis le fichier CSV
-dataset_path = 'dataset.csv'
+dataset_path = r'\Users\mewen\Machine-Learning\Machine_Learning\dataset_fraud.csv'
 df = pd.read_csv(dataset_path)
 
 # Remplacer les valeurs manquantes par la moyenne des colonnes respectives
