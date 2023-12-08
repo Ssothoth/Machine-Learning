@@ -1,56 +1,51 @@
+import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import accuracy_score
+import numpy as np
 
-# Charger le dataset depuis le fichier CSV
-dataset_path = 'dataset_fraud.csv'
-df = pd.read_csv(dataset_path)
+# Les données que vous avez fournies
+algorithmes = ['XG Boost', 'Random Forest', 'Logistic Regression', 'Linear Regression', 'Lasso Regression', 'Ridge Regression', 'Optimise Gradient Boosting Regressor', 'LightGBM Regressor', 'Decision Tree']
+precision = [0.9997721064592888, 0.9997225985521687, 0.998313587798737, 0.998840886301555, 0.9988259553454395, 0.9988416721413506, 0.9991693673360974, 0.999706, 0.9997225985521687]
+fraudes_predites = [1397, 1292, 672, 143, 126, 143, 581, 1266, 1415]
+fraudes_reelles = 1620  # Nombre de fraudes réelles
+total_donnes = 1272524  # Nombre total de données dans l'échantillon
 
-# Remplacer les valeurs manquantes par la moyenne des colonnes respectives
-df = df.fillna(df.mean())
+# Calcul des métriques supplémentaires
+sensibilite = fraudes_reelles / total_donnes  # À ajuster selon votre définition spécifique
+specificite = [1 - (fraudes_predites[i] / (total_donnes - fraudes_reelles)) for i in range(len(fraudes_predites))]  # Ajusté pour itérer sur la liste
+f1_score = 2 * (precision * sensibilite) / (precision + sensibilite)
 
-# Assurer que la colonne 'step' est de type entier
-df['step'] = df['step'].astype(int)
+# Création d'un DataFrame
+df = pd.DataFrame({'Algorithmes': algorithmes, 'Précision': precision, 'Sensibilité': sensibilite, 'Spécificité': specificite, 'F1-Score': f1_score, 'Fraudes Prédites': fraudes_predites})
 
-# Assurer que la colonne 'type' est de type chaîne de caractères
-df['type'] = df['type'].astype(str)
+# Paramètres du graphique
+fig, ax1 = plt.subplots(figsize=(10, 6))
 
-# Assurer que les colonnes 'nameOrig' et 'nameDest' sont de type chaîne de caractères
-df['nameOrig'] = df['nameOrig'].astype(str)
-df['nameDest'] = df['nameDest'].astype(str)
+# Barres pour la Précision
+color = 'tab:blue'
+ax1.set_xlabel('Algorithmes')
+ax1.set_ylabel('Précision', color=color)
+ax1.bar(df['Algorithmes'], df['Précision'], color=color)
+ax1.tick_params(axis='y', labelcolor=color)
 
-# Encoder les colonnes catégorielles avec one-hot encoding
-df_encoded = pd.get_dummies(df, columns=['type', 'nameOrig', 'nameDest'])
+# Création d'une seconde axe y pour Fraudes Prédites
+ax2 = ax1.twinx()
+color = 'tab:red'
+ax2.set_ylabel('Fraudes Prédites', color=color)
+ax2.plot(df['Algorithmes'], df['Fraudes Prédites'], color=color, marker='o', label='Fraudes Prédites')
+ax2.axhline(fraudes_reelles, linestyle='--', color='green', label='Fraudes Réelles 0.13%')
+ax2.tick_params(axis='y', labelcolor=color)
 
-# Assurer que les colonnes 'amount', 'oldbalanceOrg', 'newbalanceOrig', 'oldbalanceDest', 'newbalanceDest' sont de type flottant
-df_encoded['amount'] = df_encoded['amount'].astype(float)
-df_encoded['oldbalanceOrg'] = df_encoded['oldbalanceOrg'].astype(float)
-df_encoded['newbalanceOrig'] = df_encoded['newbalanceOrig'].astype(float)
-df_encoded['oldbalanceDest'] = df_encoded['oldbalanceDest'].astype(float)
-df_encoded['newbalanceDest'] = df_encoded['newbalanceDest'].astype(float)
+# Ajout d'une troisième axe y pour les métriques supplémentaires
+ax3 = ax1.twinx()
+color = 'tab:purple'
+ax3.spines['right'].set_position(('outward', 60))  # Ajustement de la position de l'axe
+ax3.set_ylabel('Métriques Supplémentaires', color=color)
+ax3.plot(df['Algorithmes'], df['Sensibilité'], label='Sensibilité', color='orange', marker='o')
+ax3.plot(df['Algorithmes'], df['Spécificité'], label='Spécificité', color='purple', marker='o')
+ax3.plot(df['Algorithmes'], df['F1-Score'], label='F1-Score', color='green', marker='o')
+ax3.tick_params(axis='y', labelcolor=color)
 
-# Assurer que les colonnes 'isFraud' et 'isFlaggedFraud' sont de type flottant
-df_encoded['isFraud'] = df_encoded['isFraud'].astype(float)
-df_encoded['isFlaggedFraud'] = df_encoded['isFlaggedFraud'].astype(float)
-
-# Séparer les données en features (X) et la variable cible (y)
-X = df_encoded.drop(['isFraud', 'isFlaggedFraud'], axis=1)
-y = df_encoded['isFraud']
-
-# Diviser le dataset en ensemble d'entraînement et ensemble de test
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) #données en ensembles d'entraînement et de test, avec 80% des données pour 
-                                                                                            #l'entraînement et 20% pour les tests.
-
-# Initialiser le modèle de clustering hiérarchique
-model = AgglomerativeClustering(n_clusters=2)  # spécifier nombre de clusters souhaités ?
-
-# Ajuster le modèle sur l'ensemble d'entraînement
-y_pred_train = model.fit_predict(X_train)
-
-# Ajuster le modèle sur l'ensemble de test
-y_pred_test = model.fit_predict(X_test)
-
-# Evaluer la précision du modèle sur l'ensemble de test (Notez que cela est généralement utilisé pour l'évaluation des modèles de classification)
-accuracy = accuracy_score(y_test, y_pred_test)
-print(f"Précision du modèle : {accuracy}")
+# Titre et affichage du graphique
+plt.title('Comparaison des Algorithmes de Détection de Fraudes')
+plt.legend(loc='upper left')
+plt.show()

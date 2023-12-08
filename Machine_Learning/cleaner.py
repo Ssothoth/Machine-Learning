@@ -2,10 +2,10 @@ import pandas as pd
 
 # Charger le dataset depuis le fichier CSV
 dataset_path = 'dataset.csv'
-df = pd.read_csv(dataset_path) #Charge le jeu de données depuis un fichier CSV spécifié
+df = pd.read_csv(dataset_path)
 
-# Remplacer les valeurs manquantes par la moyenne des colonnes respectives
-df = df.fillna(df.mean())
+# Supprimer les lignes avec des valeurs manquantes dans n'importe quelle colonne
+df = df.dropna()
 
 # Assurer que la colonne 'step' est de type entier
 df['step'] = df['step'].astype(int)

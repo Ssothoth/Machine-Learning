@@ -2,9 +2,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import confusion_matrix
 
 # Charger le dataset depuis le fichier CSV
-dataset_path = r'\Users\mewen\Machine-Learning\Machine_Learning\dataset_fraud.csv'
+dataset_path = 'dataset_cleaned.csv'
 df = pd.read_csv(dataset_path)
 
 # Mapping transaction types to numerical values
@@ -33,3 +34,7 @@ r2 = r2_score(y_test, y_pred)
 
 print(f"Mean Squared Error: {mse}")
 print(f"R-squared: {r2}")
+prediction = model.predict(X_test)
+prediction = (prediction > 0.5).astype(int)
+conf_matrix = confusion_matrix(y_test, prediction)
+print(f"Confusion matrix :\n{conf_matrix}")
